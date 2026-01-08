@@ -1,0 +1,51 @@
+# SPDX-License-Identifier: MIT-0
+---
+# defaults file for access-control
+
+# /srv/project/
+dir_defaults:
+  state: directory
+  owner: root
+  group: devteam
+  file_mode: '0644'
+  default_dir_mode: '0775'
+
+project_dir: /srv/project/
+
+directories:
+  - path: "{{ project_dir }}"
+    mode: '2775'
+  - path: "{{ project_dir }}config/"
+    mode: '777'
+
+create_test_files: true
+test_files:
+  - path: README.md
+    content: |
+      # Project Directory
+      This directory is for development code.
+      Group 'devteam' has read/write access.
+      Other teams have read-only or no access.
+  - path: main.py
+    content: |
+      #!/usr/bin/env python3
+      print("Hello from project directory!")
+  - path: config/config.json
+    content: |
+      {
+        "project": "development",
+        "version": "1.0.0"
+      }
+
+# /srv/log/
+log_directory:
+  path: /srv/log/
+  state: directory
+  owner: root
+  group: ops
+  mode: '2770'
+
+user_groups:
+  qateam: r-x
+  devteam: r-x
+  ops: rwx

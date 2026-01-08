@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: MIT-0
+---
+# tasks file for prepare-server
+
+- name: Update and upgrade apt packages
+  ansible.builtin.apt:
+    upgrade: full
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Install baseline packages
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: "{{ state_present }}"
+    update_cache: "{{ omit }}"
+  loop:
+    "{{ base_packages }}"
+  loop_control:
+    label: "{{ item }}"
+
+- name: Set timezone to Europe/Moscow
+  community.general.timezone:
+    name: Europe/Moscow

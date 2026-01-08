@@ -1,0 +1,14 @@
+- name: Users Linux
+  hosts: all
+  become: true
+  # vars_files:
+  #   - group_vars/all.yml
+  roles:
+    - role: prepare-server
+      tags: prepare
+
+    - role: users-and-groups
+      tags: users
+
+    - role: access-control
+      tags: access

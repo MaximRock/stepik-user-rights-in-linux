@@ -1,0 +1,73 @@
+# SPDX-License-Identifier: MIT-0
+---
+# tasks file for access-control
+
+- name: Create /srv/project (set-gid + rwxrwxr-x) and test directory (rwxrwxrwx)
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: "{{ dir_defaults.state }}"
+    owner: "{{ dir_defaults.owner }}"
+    group: "{{ dir_defaults.group }}"
+    mode: "{{ item.mode }}"
+  loop: "{{ directories }}"
+  loop_control:
+    label: "{{ item.path }}"
+  register: directory_created
+
+- name: Create test files in project directory (если включено)
+  ansible.builtin.copy:
+    dest: "{{ project_dir }}{{ item.path }}"
+    content: "{{ item.content }}"
+    owner: "{{ dir_defaults.owner }}"
+    group: "{{ dir_defaults.group }}"
+    mode: "{{ dir_defaults.file_mode }}"
+  loop: "{{ test_files }}"
+  when: create_test_files | default(false)
+  loop_control:
+    label: "{{ project_dir }}{{ item.path }}"
+
+- name: Find all files and directories in project_dir
+  ansible.builtin.find:
+    path: "{{ project_dir }}"
+    recurse: true
+    file_type: any
+  register: project_files
+
+- name: Debug test directory
+  ansible.builtin.debug:
+    msg: "{{ project_files }}"
+
+- name: Apply uniform permissions based on file type
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    mode: "{{ (directories[0].mode | default(dir_defaults.default_dir_mode)) if item.isdir else dir_defaults.file_mode }}"
+  loop: "{{ project_files.files }}"
+  loop_control:
+    label: "{{ item.path }} ({{ 'dir' if item.isdir else 'file' }})"
+
+- name: Create log directory with set-gid
+  ansible.builtin.file:
+    path: "{{ log_directory.path }}"
+    state: "{{ log_directory.state }}"
+    owner: "{{ log_directory.owner }}"
+    group: "{{ log_directory.group }}"
+    mode: "{{ log_directory.mode }}"
+
+- name: Set default ACL permissions for groups
+  ansible.posix.acl:
+    path: "{{ log_directory.path }}"
+    entity: "{{ item.key }}"
+    etype: group
+    permissions: "{{ item.value }}"
+    default: true
+    state: present
+  loop: "{{ user_groups | dict2items }}"
+
+- name: Set ACL permissions for groups on directory
+  ansible.posix.acl:
+    path: "{{ log_directory.path }}"
+    entity: "{{ item.key }}"
+    etype: group
+    permissions: "{{ item.value }}"
+    state: present
+  loop: "{{ user_groups | dict2items }}"

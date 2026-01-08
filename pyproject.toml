@@ -1,0 +1,45 @@
+[project]
+name = "stepik-user-rights-in-linux"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13.5"
+dependencies = [
+    "ansible>=13.1.0",
+    "ansible-lint>=25.12.1",
+    "passlib>=1.7.4",
+]
+
+[tool.setuptools]
+packages = []          # не собирать никакие пакеты
+py-modules = []        # и никакие модули
+
+[project.optional-dependencies]   # удобно для CI
+lint = [
+    "ansible-lint>=6.22",
+]
+
+[tool.ansible-lint]
+# лояльный профиль – можно менять на basic / moderate / production
+profile = "min"
+offline = true
+progressive = false
+
+# шумные правила, которые пока пропускаем
+# skip_list = []
+skip_list = [
+    "fqcn[action]",
+    "yaml[document-start]",
+    "meta-incorrect",
+    "no-handler",
+]
+yaml_extension = "yml,yaml"
+
+# если хотите, чтобы линтер ругался на неиспользуемые переменные
+warn_list = ["var-naming"]
+
+# исключить сторонние роли / коллекции из проверки
+exclude_paths = [
+    ".venv/",
+    "ansible-roles/external/",
+]
