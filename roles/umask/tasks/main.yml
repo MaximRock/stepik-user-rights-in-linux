@@ -1,0 +1,43 @@
+# SPDX-License-Identifier: MIT-0
+---
+# tasks file for umask_file_creation
+
+- name: Create test directory
+  ansible.builtin.shell: |
+    mkdir "{{ umask_path_test }}"
+    chown -R "{{ umask_file_permissions.vagrant }}":"{{ umask_file_permissions.vagrant }}" "{{ umask_path_test }}"
+    umask 027
+    touch "{{ umask_path_test }}/{{ umask_test_file.name }}"
+    ls -la "{{ umask_path_test }}/{{ umask_test_file.name }}"
+  register: umask_result
+  changed_when: true
+
+- name: Check test file
+  ansible.builtin.debug:
+    var: umask_result.stdout
+
+- name: Create file in directory /etc/profile.d
+  ansible.builtin.file:
+    path: "{{ umask_path_profiled }}/{{ umask_file.name }}"
+    state: "{{ state.touch }}"
+    owner: "{{ umask_file_permissions.root }}"
+    group: "{{ umask_file_permissions.root }}"
+    mode: "{{ umask_file_permissions.mode }}"
+
+- name: Insert content into a umask file
+  ansible.builtin.copy:
+    dest: "{{ umask_path_profiled }}/{{ umask_file.name }}"
+    content: "{{ umask_file.content }}"
+    owner: "{{ umask_file_permissions.root }}"
+    group: "{{ umask_file_permissions.root }}"
+    mode: "{{ umask_file_permissions.mode }}"
+
+- name: File contents 10-umask-profile.sh
+  ansible.builtin.command:
+    cmd: cat "{{ umask_path_profiled }}/{{ umask_file.name }}"
+  changed_when: false
+  register: umask_file_check_profiled
+
+- name: Check content file 10-umask-profile.sh
+  ansible.builtin.debug:
+    var: umask_file_check_profiled.stdout

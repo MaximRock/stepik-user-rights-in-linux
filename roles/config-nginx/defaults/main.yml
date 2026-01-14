@@ -1,0 +1,61 @@
+# SPDX-License-Identifier: MIT-0
+---
+# defaults file for config-nginx
+
+package_name: nginx
+
+base_path: /srv/www/
+# state:
+#   directory: directory
+#   file: file
+#   touch: touch
+#   link: link
+#   restarted: restarted
+
+web_user:
+  www_data: www-data
+  root: root
+
+web_group:
+  www-www_data: www-data
+  root: root
+
+mode:
+  directory: '2775'
+  file: '0644'
+  mode_link: '0777'
+
+file_type:
+  file: file
+
+website:
+  name: site1.local
+  directories:
+    - public_html
+    - logs
+    - tmp
+    - cache
+
+index_file: index.html
+
+websit_base_path: "{{ base_path }}{{ website.name }}"
+path_file_index_html: "{{ websit_base_path }}/{{ website.directories[0] }}/{{ index_file }}"
+
+path_config_site: "/etc/nginx/sites-available/{{ website.name }}.conf"
+path_link_config_site: "/etc/nginx/sites-enabled/"
+
+log_directory:
+  log_base_path: "{{ websit_base_path }}/{{ website.directories[1] }}"
+  log_files_name:
+    - install.log
+    - site1_access.log
+    - site1_error.log
+
+nginx_config:
+  root:
+    path_root: "{{ websit_base_path }}/{{ website.directories[0] }}"
+  index:
+    - index.html
+    - index.htm
+  path_access_log: "{{ log_directory.log_base_path }}/{{ log_directory.log_files_name[1] }}"
+  path_error_log: "{{ log_directory.log_base_path }}/{{ log_directory.log_files_name[2] }}"

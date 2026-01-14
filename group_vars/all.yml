@@ -1,3 +1,11 @@
 ---
 
 state_present: present
+update_package_cache: true
+
+state:
+  directory: directory
+  file: file
+  touch: touch
+  link: link
+  restarted: restarted

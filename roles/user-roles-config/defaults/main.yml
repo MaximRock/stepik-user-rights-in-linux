@@ -1,0 +1,29 @@
+# SPDX-License-Identifier: MIT-0
+---
+# defaults file for user-roles-config
+
+state:
+  touch: touch
+  restarted: restarted
+
+file_permissions:
+  root: root
+  mode: '0440'
+
+path_sshd_config: /etc/ssh/sshd_config
+
+path_sudoersd: /etc/sudoers.d/
+
+file:
+  - name: 10-charlie
+    content: |
+      charlie ALL=(ALL) NOPASSWD: /bin/systemctl restart nginx, /bin/systemctl restart apache2, /bin/systemctl restart mysql
+  - name: 20-bob
+    content: |
+      bob ALL=(ALL) NOPASSWD: /bin/cat /var/log/auth.log, /bin/less /var/log/auth.log, /bin/tail /var/log/auth.log
+  - name: 30-alice
+    content: |
+      alice ALL=(ALL) ALL
+  - name: 40-alex
+    content: |
+      alex ALL=(ALL) NOPASSWD: /usr/bin/vim /etc/nginx/nginx.conf, /usr/bin/nano /etc/nginx/nginx.conf

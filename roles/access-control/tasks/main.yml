@@ -71,3 +71,27 @@
     permissions: "{{ item.value }}"
     state: present
   loop: "{{ user_groups | dict2items }}"
+
+- name: Create shared directory with Sticky bit
+  ansible.builtin.file:
+    path: "{{ shared_directory.path }}"
+    state: "{{ shared_directory.state }}"
+    owner: "{{ shared_directory.owner }}"
+    group: "{{ shared_directory.group }}"
+    mode: "{{ shared_directory.mode }}"
+
+- name: Create directory app1
+  ansible.builtin.file:
+    path: "{{ log_app_directory.path }}"
+    state: "{{ log_app_directory.directory }}"
+    owner: "{{ log_app_directory.username }}"
+    group: "{{ log_directory.group }}"
+    mode: "{{ log_directory.mode }}"
+
+- name: Set ACL Sticky bit for directory shared
+  ansible.posix.acl:
+    path: "{{ log_app_directory.path }}"
+    entity: "{{ log_app_directory.username }}"
+    etype: "{{ log_app_directory.etype }}"
+    permissions: "{{ log_app_directory.permissions }}"
+    state: "{{ state_present }}"

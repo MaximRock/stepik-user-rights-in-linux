@@ -1,0 +1,31 @@
+# SPDX-License-Identifier: MIT-0
+---
+# tasks file for user-roles-config
+
+- name: Disable direct SSH login for root
+  ansible.builtin.lineinfile:
+    path: "{{ path_sshd_config }}"
+    line: 'PermitRootLogin no'
+  notify: Restart sshd
+
+- name: Create file users config /etc/sudoers.d/
+  ansible.builtin.file:
+    path: "{{ path_sudoersd }}{{ item.name }}"
+    state: "{{ state.touch }}"
+    owner: "{{ file_permissions.root }}"
+    group: "{{ file_permissions.root }}"
+    mode: "{{ file_permissions.mode }}"
+  loop: "{{ file }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Config file users config /etc/sudoers.d/ in users
+  ansible.builtin.copy:
+    dest: "{{ path_sudoersd }}{{ item.name }}"
+    content: "{{ item.content }}"
+    owner: "{{ file_permissions.root }}"
+    group: "{{ file_permissions.root }}"
+    mode: "{{ file_permissions.mode }}"
+  loop: "{{ file }}"
+  loop_control:
+    label: "{{ item.name }}"

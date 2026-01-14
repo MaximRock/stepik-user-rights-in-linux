@@ -1,0 +1,21 @@
+
+server {
+    listen 80;
+    listen [::]:80;
+    
+    server_name {{ website.name | default('www.site1.local') }};
+    root {{ nginx_config.root.path_root }};
+    index {{ nginx_config.index | join(' ') }};
+    
+    access_log {{ nginx_config.path_access_log }};
+    error_log {{ nginx_config.path_error_log }};
+    
+    location / {
+        try_files $uri $uri/ =404;
+    }
+    
+    # Пример дополнительных настроек
+    location ~* \.(jpg|jpeg|png|gif|ico|css|js)$ {
+        expires 365d;
+    }
+}

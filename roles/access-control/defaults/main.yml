@@ -49,3 +49,19 @@ user_groups:
   qateam: r-x
   devteam: r-x
   ops: rwx
+
+# /tmp/sharedtest/
+shared_directory:
+  path: /tmp/sharedtest
+  state: directory
+  owner: root
+  group: root
+  mode: '1777'
+
+# /srv/logs/app1/
+log_app_directory:
+  path: "{{ log_directory.path }}app1/"
+  directory: directory
+  username: alex
+  permissions: rwx
+  etype: user

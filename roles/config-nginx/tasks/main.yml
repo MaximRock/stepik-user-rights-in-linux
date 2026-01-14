@@ -1,0 +1,116 @@
+# SPDX-License-Identifier: MIT-0
+---
+# tasks file for config-nginx
+
+- name: Install nginx
+  ansible.builtin.apt:
+    name: "{{ package_name | default('nginx') }}"
+    state: "{{ state_present }}"
+    update_cache: "{{ update_package_cache | bool }}"
+
+- name: Create directory for the website
+  ansible.builtin.file:
+    path: "{{ base_path }}"
+    state: "{{ state.directory }}"
+    owner: "{{ web_user.www_data | default('www-data') }}"
+    group: "{{ web_groupwww_data | default('www-data') }}"
+    mode: "{{ mode.directory | default('2775') }}"
+
+- name: Create website subdirectories
+  ansible.builtin.file:
+    path: "{{ base_path }}{{ website.name }}/{{ item }}"
+    state: "{{ state.directory }}"
+    owner: "{{ web_user.www_data | default('www-data') }}"
+    group: "{{ web_group.www_data | default('www-data') }}"
+    mode: "{{ mode.directory | default('2775') }}"
+  loop: "{{ website.directories }}"
+  loop_control:
+    label: "{{ base_path }}{{ website.name }}/{{ item }}"
+
+- name: Create website log directories
+  ansible.builtin.file:
+    path: "{{ log_directory.log_base_path }}/{{ item }}"
+    state: "{{ state.touch }}"
+    owner: "{{ web_user.www_data | default('www-data') }}"
+    group: "{{ web_groupwww_data | default('www-data') }}"
+    mode: "{{ mode.file | default('0644') }}"
+  loop: "{{ log_directory.log_files_name }}"
+  loop_control:
+    label: "{{ item }}"
+
+- name: Create file index.html
+  ansible.builtin.file:
+    path: "{{ path_file_index_html }}"
+    state: "{{ state.touch }}"
+    owner: "{{ web_user.www_data | default('www-data') }}"
+    group: "{{ web_group.www_data | default('www-data') }}"
+    mode: "{{ mode.file | default('0644') }}"
+
+- name: We fill in file index.html
+  ansible.builtin.template:
+    src: index.html.j2
+    dest: "{{ path_file_index_html }}"
+    owner: "{{ web_user.www_data | default('www-data') }}"
+    group: "{{ web_group.www_data | default('www-data') }}"
+    mode: "{{ mode.file | default('0644') }}"
+
+- name: Create file server config nginx
+  ansible.builtin.file:
+    path: "{{ path_config_site }}"
+    state: "{{ state.touch }}"
+    owner: "{{ web_user.root }}"
+    group: "{{ web_group.root }}"
+    mode: "{{ mode.file | default('0644') }}"
+
+- name: File server config nginx
+  ansible.builtin.template:
+    src: nginx.config.j2
+    dest: "{{ path_config_site }}"
+    owner: "{{ web_user.root }}"
+    group: "{{ web_group.root }}"
+    mode: "{{ mode.file | default('0644') }}"
+
+- name: Find all files in directory website
+  ansible.builtin.find:
+    path: "{{ base_path }}"
+    file_type: "{{ file_type.file }}"
+    recurse: true
+  register: website_files
+
+- name: Set 644 for each file
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    owner: "{{ web_user.www_data | default('www-data') }}"
+    group: "{{ web_group.www_data | default('www-data') }}"
+    mode: "{{ mode.file | default('0644') }}"
+  loop: "{{ website_files.files }}"
+  loop_control:
+    label: "{{ item.path }}"
+
+- name: Create link nginx config
+  ansible.builtin.file:
+    src: "{{ path_config_site }}"
+    dest: "{{ path_link_config_site }}/{{ website.name }}.conf"
+    state: "{{ state.link }}"
+    owner: "{{ web_user.root }}"
+    group: "{{ web_group.root }}"
+    mode: "{{ mode.mode_link | default('0777') }}"
+    force: true
+  notify: Reload nginx
+
+- name: Show all date/time facts
+  ansible.builtin.debug:
+    var: ansible_date_time.iso8601
+
+- name: Adding log in file install.log
+  ansible.builtin.copy:
+    dest: "{{ log_directory.log_base_path }}/{{ log_directory.log_files_name[0] }}"
+    content: |
+      ====================================
+      Welcome to {{ ansible_hostname }}
+      System - {{ ansible_distribution }} {{ ansible_distribution_version }}
+      Nginx installation is complete - {{ ansible_date_time.iso8601 }}
+      ====================================
+    owner: "{{ web_user.root }}"
+    group: "{{ web_group.root }}"
+    mode: "{{ mode.file | default('0644') }}"
