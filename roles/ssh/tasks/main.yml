@@ -1,0 +1,84 @@
+# SPDX-License-Identifier: MIT-0
+---
+# tasks file for ssh
+
+- name: Show playbook dir
+  ansible.builtin.debug:
+    var: playbook_dir
+
+- name: Get current user (without sudo)
+  ansible.builtin.command:
+    cmd: whoami
+  changed_when: false
+  delegate_to: localhost
+  register: ssh_current_user
+  become: false
+
+- name: Show user
+  ansible.builtin.debug:
+    msg: "Current user: {{ ssh_current_user.stdout }}"
+
+- name: Create main ssh users directory
+  ansible.builtin.file:
+    path: "{{ ssh_base_path }}"
+    state: "{{ state.directory }}"
+    owner: "{{ ssh_current_user.stdout }}"
+    group: "{{ ssh_current_user.stdout }}"
+    mode: "{{ ssh_file_permissions.mode_dir }}"
+  become_user: "{{ ssh_current_user.stdout }}"
+  become: false
+  delegate_to: localhost
+  run_once: true
+
+- name: Create directory for each user
+  ansible.builtin.file:
+    path: "{{ ssh_base_path }}/{{ item.username }}"
+    state: "{{ state.directory }}"
+    owner: "{{ ssh_current_user.stdout }}"
+    group: "{{ ssh_current_user.stdout }}"
+    mode: "{{ ssh_file_permissions.mode_dir }}"
+  loop: "{{ users }}"
+  loop_control:
+    label: "{{ ssh_users }}/{{ item.username }}"
+  become_user: "{{ ssh_current_user.stdout }}"
+  become: false
+  delegate_to: localhost
+  run_once: true
+
+- name: Install collections openssh_keypair
+  community.general.ansible_galaxy_install:
+    type: collection
+    name: "{{ item }}"
+    state: "{{ state.present }}"
+  loop: "{{ ssh_collections }}"
+  loop_control:
+    label: "{{ item }}"
+  delegate_to: localhost
+  run_once: true
+  become_user: "{{ ssh_current_user.stdout }}"
+  become: false
+
+- name: Generate SSH key pair
+  community.crypto.openssh_keypair:
+    path: "{{ ssh_base_path }}/{{ item.username }}/{{ item.username }}.key"
+    type: "{{ ssh_key.type }}"
+    size: "{{ ssh_key.size }}"
+    state: "{{ state.present }}"
+    force: true
+    comment: "{{ item.username }}{{ ssh_key.prefix }}"
+  loop: "{{ users }}"
+  loop_control:
+    label: "{{ ssh_users }}/{{ item.username }}/{{ item.username }}.key"
+  become_user: "{{ ssh_current_user.stdout }}"
+  become: false
+  delegate_to: localhost
+  run_once: true
+
+- name: Add SSH public key to authorized_keys
+  ansible.posix.authorized_key:
+    user: "{{ item.username }}"
+    state: "{{ state.present }}"
+    key: "{{ lookup('file', ssh_base_path + '/' + item.username + '/' + item.username + '.key.pub') }}"
+  loop: "{{ users }}"
+  loop_control:
+    label: "{{ item.username }}.key.pub"

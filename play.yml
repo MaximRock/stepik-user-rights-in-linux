@@ -1,23 +1,30 @@
 - name: Users Linux
   hosts: all
   become: true
-  # vars_files:
-  #   - group_vars/all.yml
+  tags:
+    - all
+
   roles:
-    # - role: prepare-server
-    #   tags: prepare
+    - role: prepare-server
+      tags: prepare
 
-    # - role: users-and-groups
-    #   tags: users
+    - role: users-and-groups
+      tags: users
 
-    # - role: access-control
-    #   tags: access
+    - role: access-control
+      tags: access
 
-    # - role: config-nginx
-    #   tags: nginx
+    - role: config-nginx
+      tags: nginx
 
-    # - role: user-roles-config
-    #   tags: sudoersd
+    - role: user-roles-config
+      tags: sudoersd
 
     - role: umask
       tags: umask
+
+    - role: audit
+      tags: audit
+
+    - role: ssh
+      tags: ssh

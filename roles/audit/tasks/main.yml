@@ -1,0 +1,43 @@
+# SPDX-License-Identifier: MIT-0
+---
+# tasks file for audit
+
+- name: Create file audit rules
+  ansible.builtin.file:
+    path: "{{ audit_base_path }}/{{ item.name }}"
+    state: "{{ state.touch }}"
+    owner: "{{ audit_file_permissions.root }}"
+    group: "{{ audit_file_permissions.root }}"
+    mode: "{{ audit_file_permissions.mode }}"
+  loop: "{{ audit_config }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Content file audit rules
+  ansible.builtin.copy:
+    dest: "{{ audit_base_path }}/{{ item.name }}"
+    content: "{{ item.content }}"
+    owner: "{{ audit_file_permissions.root }}"
+    group: "{{ audit_file_permissions.root }}"
+    mode: "{{ audit_file_permissions.mode }}"
+    force: true
+  loop: "{{ audit_config }}"
+  loop_control:
+    label: "{{ item.name }}"
+  notify: Restart auditd
+  changed_when: true
+
+- name: Load augenrules
+  ansible.builtin.command:
+    cmd: augenrules --load
+  changed_when: true
+
+- name: Active audit rules
+  ansible.builtin.command:
+    cmd: auditctl -l
+  changed_when: false
+  register: audit_rules
+
+- name: Check loded rules
+  ansible.builtin.debug:
+    var: audit_rules.stdout_lines

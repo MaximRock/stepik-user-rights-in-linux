@@ -13,3 +13,5 @@ base_packages:
   - tzdata
   - needrestart
   - acl
+  - auditd
+  - audispd-plugins

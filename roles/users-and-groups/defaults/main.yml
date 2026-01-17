@@ -13,45 +13,24 @@ password_policy:
   warn_days: 7
   inactive_days: 30
 
-users:
-  - username: alice
-    group: devteam
-    shell: /bin/bash
-    create_home: true
-    first_login_change: true
-  - username: bob
-    group: qateam
-    shell: /bin/bash
-    create_home: true
-    first_login_change: true
-  - username: alex
-    group: devteam
-    shell: /bin/bash
-    create_home: true
-    first_login_change: true
-  - username: charlie
-    group: ops
-    shell: /bin/bash
-    create_home: true
-    first_login_change: true
-
 # users:
 #   - username: alice
-#   - group: devteam
-#   - create_home: true
-
+#     group: devteam
+#     shell: /bin/bash
+#     create_home: true
+#     first_login_change: true
 #   - username: bob
-#   - group: qateam
-#   - create_home: true
-
-
-# users_in_group_dict:
-#   - {name: alice, groups: devteam, shell: /bin/bash, password: "Temp1"}
-#   - {name: alex, groups: devteam, shell: /bin/bash, password: "Temp2"}
-#   - {name: bob, groups: qateam, shell: /bin/bash, password: "Temp3"}
-#   - {name: charlie, groups: ops, shell: /bin/bash, password: "Temp4"}
-#   # - {name: nginx, shell: /bin/false, uid: 2000}
-
-# temp_password: "TempPass"
-# pw_lifetime_days: 90
-# pw_warn_days: 7
+#     group: qateam
+#     shell: /bin/bash
+#     create_home: true
+#     first_login_change: true
+#   - username: alex
+#     group: devteam
+#     shell: /bin/bash
+#     create_home: true
+#     first_login_change: true
+#   - username: charlie
+#     group: ops
+#     shell: /bin/bash
+#     create_home: true
+#     first_login_change: true

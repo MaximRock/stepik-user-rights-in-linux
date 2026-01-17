@@ -2,8 +2,6 @@
 
 # Файл: 70-audit-config.sh
 # Назначение: Установка, настройка и запуск auditd
-# Описание: Отступление от задания, создал группу audit-admins
-#           и добавил Charlie в эту группу для мониторинга логов.
 # Автор: maximrock
 # Дата: $(date +%Y-%m-%d)
 
@@ -11,24 +9,6 @@
 config_auditd="/etc/audit/rules.d"
 
 apt install auditd audispd-plugins -y &> /dev/null
-
-# # 1. Создаем специальную группу для администраторов audit
-# groupadd audit-admins
-
-# # 2. Добавляем Charlie в эту группу
-# usermod -aG audit-admins charlie
-
-# # 3. Меняем владельца каталога с правилами
-# chown -R root:audit-admins /etc/audit/rules.d/
-
-# # 4. Даем права на чтение и запись группе
-# chmod -R 770 /etc/audit/rules.d/
-
-# # 5. Включаем setgid bit (новые файлы будут наследовать группу)
-# chmod g+s /etc/audit/rules.d/
-
-# # 6. Проверяем
-# ls -lad /etc/audit/rules.d/
 
 cat > $config_auditd/10-identity.rules << 'EOF'
 ## Мониторинг файлов паролей и групп ##
@@ -62,7 +42,7 @@ cat > $config_auditd/40-ssh.rules << 'EOF'
 ## Мониторинг SSH ключей ##
 -w /etc/ssh/sshd_config -p wa -k ssh_config
 -w /root/.ssh/ -p wa -k ssh_keys
--w /home/*/.ssh/ -p wa -k ssh_keys
+-w /home/vagrant/.ssh/ -p wa -k ssh_keys
 EOF
 
 cat > $config_auditd/50-system-bin.rules << 'EOF'
@@ -77,9 +57,6 @@ augenrules --load &> /dev/null
 
 systemctl enable auditd
 systemctl start auditd
-
-# echo "Проверка статуса auditd:"
-# systemctl status auditd --no-pager
 
 echo "Активные правила аудита:"
 auditctl -l

@@ -4,8 +4,31 @@ state_present: present
 update_package_cache: true
 
 state:
+  present: present
   directory: directory
   file: file
   touch: touch
   link: link
   restarted: restarted
+
+users:
+  - username: alex
+    group: devteam
+    shell: /bin/bash
+    create_home: true
+    first_login_change: true
+  - username: alice
+    group: devteam
+    shell: /bin/bash
+    create_home: true
+    first_login_change: true
+  - username: bob
+    group: qateam
+    shell: /bin/bash
+    create_home: true
+    first_login_change: true
+  - username: charlie
+    group: ops
+    shell: /bin/bash
+    create_home: true
+    first_login_change: true

@@ -14,5 +14,6 @@ wheels/
 .python-version
 
 shared-dir/ssh-users/
+ssh-users
 
 11.txt

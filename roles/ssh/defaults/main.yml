@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: MIT-0
+---
+# defaults file for ssh
+
+ssh_users: ssh-users
+ssh_base_path: "{{ playbook_dir }}/{{ ssh_users }}"
+
+ssh_file_permissions:
+  root: root
+  mode_dir: '2775'
+
+ssh_key:
+  type: ed25519
+  size: '4096'
+  prefix: '@srv'
+
+ssh_collections:
+  - community.crypto
+  - ansible.posix

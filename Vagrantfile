@@ -25,6 +25,7 @@ Vagrant.configure("2") do |config|
     if run_ansible
         config.vm.provision "ansible" do |ansible|
             ansible.playbook = "play.yml"
+            ansible.tags = ENV['ANSIBLE_TAGS'].split(',')
         end
     end
 
