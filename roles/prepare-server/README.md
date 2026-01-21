@@ -2,8 +2,8 @@ Prepare-server
 =========
 
 Подготовка сервера.
-Установка необходимых пакетов для проекта и работы сервера(за исключением веб-сервера nginx).
-У становка timezone Europe/Moscow.
+Установка необходимых пакетов для проекта и работы сервера (за исключением веб-сервера `nginx`).
+У становка `timezone Europe/Moscow`.
 
 Role Variables
 --------------
@@ -28,28 +28,28 @@ Role Variables
     - audispd-plugins
 ```
 
-Обновляем пакеты (если требуется более простое обновление замените на <kbd>safe<kbd>)
+Обновляем пакеты (если требуется более простое обновление замените на `safe`):
 ```
   apt_upgrade: full
 ```
-Кэшируем результат <kbd>apt-get update<kbd>
+Кэшируем результат `apt-get update`:
 ```
   apt_cache_valid_time: 3600
 ```
 
-Удаляет неиспользуемые пакеты
+Удаляет неиспользуемые пакеты:
 ```
   apt_autoremove: true
 ```
-Очищает кэш скачанных пакетов
+Очищает кэш скачанных пакетов:
 ```
   apt_autoclean: true
 ```
-Уставка пакетов (см. <kbd>group_vars/all.yml<kbd>)
+Уставка пакетов (см. `roup_vars/all.yml`):
 ```
 state: "{{ state.present }}"
 ```
-Устанавливает <kbd>timezone<kbd>
+Устанавливает `timezone`:
 ```
   name_timezone: Europe/Moscow
 ```
