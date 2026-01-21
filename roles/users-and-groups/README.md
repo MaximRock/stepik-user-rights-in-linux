@@ -61,7 +61,7 @@ Role Variables
 - `group:` имя группы
 - `shell:` терминал
 - `create_home:` домашняя директория
-- `first_login_change:` если true устанавливаем пользователя
+- `first_login_change:` если `true` устанавливаем пользователя
 
 Политика истечения паролей.
 ```

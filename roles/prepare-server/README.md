@@ -71,5 +71,3 @@ Example Playbook
     autoremove: "{{ apt_autoremove | default(true) }}"
     autoclean: "{{ apt_autoclean | default(true) }}"
 ```
-
-
