@@ -12,6 +12,14 @@ base_packages:
   - chrony
   - tzdata
   - needrestart
+  - bat
   - acl
   - auditd
   - audispd-plugins
+
+apt_upgrade: full
+apt_cache_valid_time: 3600
+apt_autoremove: true
+apt_autoclean: true
+
+name_timezone: Europe/Moscow

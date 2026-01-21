@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: MIT-0
+---
+# tasks file for result
+
+- name: Checksum directory /etc/skel
+  ansible.builtin.include_tasks: check-sum.yml
+  tags: check-sum
+
+- name: Info directory /srv/project
+  ansible.builtin.include_tasks: dir-info.yml
+  tags: dir-info
+
+- name: Info ACL mask directory /srv/logs/app1/
+  ansible.builtin.include_tasks: acl-mask.yml
+  tags: acl-mask
+
+- name: Info auditreport
+  ansible.builtin.include_tasks: audit-check.yml
+  tags: audit-check

@@ -1,0 +1,118 @@
+# SPDX-License-Identifier: MIT-0
+---
+# tasks file for result
+
+- name: Examination checksum directory /etc/skel
+  ansible.builtin.debug:
+    msg: "=========== Compare checksums and show results ==================="
+
+# Удаляем первую строку из файла /home/alex/.bashrc
+# Тест - вычесление контрольной суммы
+- name: Remove line user alex in file .bashrc
+  ansible.builtin.lineinfile:
+    path: "/home/{{ users[0].username }}/{{ result_skel_files[0] }}"
+    regexp: '# ~/.bashrc:'
+    state: "{{ state.absent }}"
+#   tasks:
+    # ============================================================================
+    # ШАГ 1: Получаем хеш-суммы всех файлов из /etc/skel
+    # ============================================================================
+- name: Get checksums of /etc/skel files
+  ansible.builtin.stat:
+    path: "/etc/skel/{{ item }}"  # Путь к файлу: /etc/skel/.bashrc, /etc/skel/.profile и т.д.
+    get_checksum: true            # Включаем вычисление контрольной суммы
+    checksum_algorithm: sha256    # Используем SHA256 (безопаснее MD5)
+  register: result_etc_skel_stat         # Сохраняем результаты в переменную etc_skel_stat
+  loop: "{{ result_skel_files }}"        # Повторяем для каждого файла из списка
+  # Пример etc_skel_stat после выполнения:
+  # {
+  #   "results": [
+  #     {"item": ".bashrc", "stat": {"exists": true, "checksum": "abc123..."}},
+  #     {"item": ".profile", "stat": {"exists": true, "checksum": "def456..."}}
+  #   ]
+  # }
+
+# ============================================================================
+# ШАГ 2: Создаём словарь вида {".bashrc": "abc123...", ".profile": "def456..."}
+# ============================================================================
+- name: Create dictionary of skel checksums
+  ansible.builtin.set_fact:
+    # Формируем словарь skel_checksums
+    # Пример: skel_checksums[".bashrc"] = "abc123..."
+    result_skel_checksums: "{{ result_skel_checksums | default({}) | combine({item.item: item.stat.checksum}) }}"
+  loop: "{{ result_etc_skel_stat.results }}"  # Проходим по каждому результату
+  # item здесь = {"item": ".bashrc", "stat": {"checksum": "abc123..."}}
+  # item.item = ".bashrc" (имя файла)
+  # item.stat.checksum = "abc123..." (хеш-сумма)
+  when: item.stat.exists  # Обрабатываем только существующие файлы
+  loop_control:
+    label: "{{ item.item }} - SHA256: {{ item.stat.checksum[:20] }}"
+
+  # Пример skel_checksums после выполнения:
+  # skel_checksums = {
+  #   ".bashrc": "abc123...",
+  #   ".profile": "def456...",
+  #   ".bash_logout": "789abc..."
+  # }
+
+# ============================================================================
+# ШАГ 3: Получаем хеш-суммы файлов из домашних директорий пользователей
+# ============================================================================
+- name: Get checksums of user files
+  ansible.builtin.stat:
+    path: "/home/{{ item.0.username }}/{{ item.1 }}"  # Путь: /home/alice/.bashrc
+    get_checksum: true
+    checksum_algorithm: sha256
+  register: result_home_bashrc_stats  # Результаты сохраняются здесь
+  # Используем product для создания всех комбинаций пользователей и файлов
+  # Пример: (alice, .bashrc), (alice, .profile), (bob, .bashrc) и т.д.
+  loop: "{{ users | product(result_skel_files) | list }}"
+  loop_control:
+    label: "{{ item.0.username }}/{{ item.1 }}"  # Короткая метка: "alice/.bashrc"
+
+  # Пример home_bashrc_stats.results:
+  # [
+  #   {
+  #     "item": [{"username": "alice", "groups": "devteam"}, ".bashrc"],
+  #     "stat": {"exists": true, "checksum": "abc123..."}
+  #   },
+  #   {
+  #     "item": [{"username": "alice", "groups": "devteam"}, ".profile"],
+  #     "stat": {"exists": false}
+  #   }
+  # ]
+
+# ============================================================================
+# ШАГ 4: Сравниваем хеш-суммы и выводим результаты
+# ============================================================================
+- name: Compare checksums and show results
+  ansible.builtin.debug:
+    # Формируем сообщение для каждого файла каждого пользователя
+    msg: >
+      User {{ item.item.0.username }}: {{ item.item.1 }}
+      is {{ '✓ identical' if result_skel_checksums[item.item.1] == item.stat.checksum else '✗ different' }}
+      (SHA256: {{ item.stat.checksum }})
+  # Проходим по результатам home_bashrc_stats
+  loop: "{{ result_home_bashrc_stats.results }}"
+  # Выполняем только если:
+  # 1. Файл существует (item.stat.exists)
+  # 2. Хеш вычислен (item.stat.checksum is defined)
+  when:
+    - item.stat.exists
+    - item.stat.checksum is defined
+  loop_control:
+    label: "{{ item.item.0.username }}/{{ item.item.1 }}"
+
+  # Пример item внутри цикла:
+  # {
+  #   "item": [{"username": "alice", "groups": "devteam"}, ".bashrc"],
+  #   "stat": {"exists": true, "checksum": "abc123..."}
+  # }
+
+  # item.item.0.username = "alice" (имя пользователя)
+  # item.item.1 = ".bashrc" (имя файла)
+  # skel_checksums[item.item.1] = "abc123..." (хеш из /etc/skel/.bashrc)
+  # item.stat.checksum = "abc123..." (хеш из /home/alice/.bashrc)
+
+  # Сравнение: "abc123..." == "abc123..." → true → 'identical'
+  # Сравнение: "abc123..." == "def456..." → false → 'different'

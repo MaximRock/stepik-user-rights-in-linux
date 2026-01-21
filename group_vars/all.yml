@@ -1,10 +1,10 @@
 ---
 
-state_present: present
 update_package_cache: true
 
 state:
   present: present
+  absent: absent
   directory: directory
   file: file
   touch: touch

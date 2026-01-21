@@ -1,38 +1,75 @@
-Role Name
+Prepare-server
 =========
 
-A brief description of the role goes here.
-
-Requirements
-------------
-
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+Подготовка сервера.
+Установка необходимых пакетов для проекта и работы сервера(за исключением веб-сервера nginx).
+У становка timezone Europe/Moscow.
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+Ниже перечислены доступные переменные и их значения по умолчанию (см. <kbd>defaults/main.yml</kbd>)
+Список устанавливаемых пакетов:
+
+```
+  base_packages:
+    - curl
+    - gnupg
+    - lsb-release
+    - software-properties-common
+    - apt-transport-https
+    - ca-certificates
+    - chrony
+    - tzdata
+    - needrestart
+    - bat
+    - acl
+    - auditd
+    - audispd-plugins
+```
+
+Обновляем пакеты (если требуется более простое обновление замените на <kbd>safe<kbd>)
+```
+  apt_upgrade: full
+```
+Кэшируем результат <kbd>apt-get update<kbd>
+```
+  apt_cache_valid_time: 3600
+```
+
+Удаляет неиспользуемые пакеты
+```
+  apt_autoremove: true
+```
+Очищает кэш скачанных пакетов
+```
+  apt_autoclean: true
+```
+Уставка пакетов (см. <kbd>group_vars/all.yml<kbd>)
+```
+state: "{{ state.present }}"
+```
+Устанавливает <kbd>timezone<kbd>
+```
+  name_timezone: Europe/Moscow
+```
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+Нет
 
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+```
+- name: Update and upgrade apt packages
+  ansible.builtin.apt:
+    upgrade: "{{ apt_upgrade | default('safe') }}"
+    update_cache: "{{ update_package_cache | default(true) }}"
+    cache_valid_time: "{{ apt_cache_valid_time | default(3600) }}"
+    autoremove: "{{ apt_autoremove | default(true) }}"
+    autoclean: "{{ apt_autoclean | default(true) }}"
+```
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
 
-License
--------
-
-BSD
-
-Author Information
-------------------
-
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).

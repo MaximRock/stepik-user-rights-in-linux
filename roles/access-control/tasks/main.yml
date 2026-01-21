@@ -33,9 +33,6 @@
     file_type: any
   register: project_files
 
-- name: Debug test directory
-  ansible.builtin.debug:
-    msg: "{{ project_files }}"
 
 - name: Apply uniform permissions based on file type
   ansible.builtin.file:
@@ -94,4 +91,4 @@
     entity: "{{ log_app_directory.username }}"
     etype: "{{ log_app_directory.etype }}"
     permissions: "{{ log_app_directory.permissions }}"
-    state: "{{ state_present }}"
+    state: "{{ state.present }}"

@@ -1,0 +1,18 @@
+# SPDX-License-Identifier: MIT-0
+---
+# tasks file for result
+
+- name: Check auditreport
+  ansible.builtin.debug:
+    msg: "=========== Checking auditreport ================="
+
+- name: Checking logs audit # noqa risky-shell-pipe
+  ansible.builtin.shell:
+    cmd: aureport -f | grep "/usr/sbin" | tail -10
+  changed_when: false
+  register: result_audit_check
+  failed_when: false
+
+- name: Report audit
+  ansible.builtin.debug:
+    var: result_audit_check.stdout_lines

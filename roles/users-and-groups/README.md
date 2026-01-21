@@ -1,38 +1,104 @@
-Role Name
+Users-and-groups
 =========
 
-A brief description of the role goes here.
+Выполнение пункта 2 задания.
+Создание пользователей и групп.
+
+>### Важно
+> При перезапуске роли пользователи и группы создаются заново!
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+Нет
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+Ниже перечислены доступные переменные и их значения по умолчанию (см. <kbd>defaults/main.yml<kbd>):
+
+```
+  user_groups:
+    - devteam
+    - qateam
+    - ops
+```
+
+Список имен групп.
+```
+  state: "{{ state.present }}"
+```
+
+Создание пользователей и групп (см. <kbd>group_vars/all.yml<kbd>)
+
+```
+  users:
+    - username: alex
+      group: devteam
+      shell: /bin/bash
+      create_home: true
+      first_login_change: true
+    - username: alice
+      group: devteam
+      shell: /bin/bash
+      create_home: true
+      first_login_change: true
+    - username: bob
+      group: qateam
+      shell: /bin/bash
+      create_home: true
+      first_login_change: true
+    - username: charlie
+      group: ops
+      shell: /bin/bash
+      create_home: true
+      first_login_change: true
+```
+
+Список пользователей с параметрами:
+
+- <kbd>username:<kbd> имя пользователя
+- <kbd>group:<kbd> имя группы
+- <kbd>shell:<kbd> терминал
+- <kbd>create_home:<kbd> домашняя директория
+- <kbd>first_login_change:<kbd> если true устанавливаем пользователя
+
+```
+  password_policy:
+    max_days: 90
+    min_days: 1
+    warn_days: 7
+    inactive_days: 30
+```
+
+Список параметров пароля:
+
+- <kbd>max_days:<kbd> максимальное количество дней между сменой пароля
+- <kbd>min_days:<kbd> минимальное количество дней между сменами парол
+- <kbd>warn_days:<kbd> за сколько дней предупреждать об истечении пароля
+- <kbd>inactive_days:<kbd> сколько дней после истечения пароля отключать аккаунт
+
+```
+  temp_password: 'Temp123'
+```
+
+Временный пароль для пользователей
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+Нет
 
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
-
-License
--------
-
-BSD
-
-Author Information
-------------------
-
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+```
+  - name: Create groups
+    ansible.builtin.group:
+      name: "{{ item }}"
+      state: "{{ state.present }}"
+    loop: "{{ user_groups }}"
+    loop_control:
+      label: "{{ item }}"
+    register: grp
+```

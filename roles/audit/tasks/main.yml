@@ -41,3 +41,6 @@
 - name: Check loded rules
   ansible.builtin.debug:
     var: audit_rules.stdout_lines
+
+# - name: Force handlers to run now
+#   ansible.builtin.meta: flush_handlers

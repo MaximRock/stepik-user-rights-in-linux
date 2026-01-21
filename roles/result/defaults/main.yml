@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: MIT-0
+---
+# defaults file for result
+
+result_skel_files:
+  - .bashrc
+  - .bash_logout
+  - .profile
+
+result_project_dir: /srv/project/
+
+result_log_app_dir: /srv/log/app1/

@@ -1,0 +1,16 @@
+# SPDX-License-Identifier: MIT-0
+---
+# tasks file for result
+
+- name: Check ACL mask
+  ansible.builtin.debug:
+    msg: "=========== Checking the ACL permissions set  ================="
+
+- name: Checking the ACL permissions setа
+  ansible.builtin.command: getfacl "{{ result_log_app_dir }}"
+  register: result_acl_result
+  changed_when: false
+
+- name: Displaying the result of ACL installation
+  ansible.builtin.debug:
+    msg: "{{ result_acl_result.stdout_lines }}"

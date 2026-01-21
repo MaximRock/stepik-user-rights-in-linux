@@ -4,14 +4,16 @@
 
 - name: Update and upgrade apt packages
   ansible.builtin.apt:
-    upgrade: full
-    update_cache: true
-    cache_valid_time: 3600
+    upgrade: "{{ apt_upgrade | default('safe') }}"
+    update_cache: "{{ update_package_cache | default(true) }}"
+    cache_valid_time: "{{ apt_cache_valid_time | default(3600) }}"
+    autoremove: "{{ apt_autoremove | default(true) }}"
+    autoclean: "{{ apt_autoclean | default(true) }}"
 
 - name: Install baseline packages
   ansible.builtin.apt:
     name: "{{ item }}"
-    state: "{{ state_present }}"
+    state: "{{ state.present }}"
     update_cache: "{{ omit }}"
   loop:
     "{{ base_packages }}"
@@ -20,4 +22,4 @@
 
 - name: Set timezone to Europe/Moscow
   community.general.timezone:
-    name: Europe/Moscow
+    name: "{{ name_timezone }}"

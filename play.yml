@@ -1,8 +1,9 @@
+---
 - name: Users Linux
   hosts: all
   become: true
   tags:
-    - all
+    - setup-all
 
   roles:
     - role: prepare-server
@@ -28,3 +29,6 @@
 
     - role: ssh
       tags: ssh
+
+    - role: result
+      tags: result

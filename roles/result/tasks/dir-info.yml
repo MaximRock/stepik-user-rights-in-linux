@@ -1,0 +1,52 @@
+---
+# tasks file for access-control
+
+- name: Group and individual rights
+  ansible.builtin.debug:
+    msg: "=========== Group and individual rights result  ==================="
+
+- name: Collect directory information
+  ansible.builtin.stat:
+    path: "{{ result_project_dir }}"
+  register: result_dir_info_stat
+
+- name: Check if a directory exists
+  ansible.builtin.assert:
+    that:
+      - result_dir_info_stat.stat.exists
+    success_msg: "✓ Директория {{ result_project_dir }} существует"
+    fail_msg: "✗ Директория {{ result_project_dir }} не найдена"
+
+- name: Check the SGID bit
+  ansible.builtin.assert:
+    that:
+      - result_dir_info_stat.stat.isgid
+    success_msg: |-
+      {{
+        [
+          '✓ Бит SGID установлен на ' + result_project_dir + ' |',
+          'Текущие права: ' + result_dir_info_stat.stat.mode + ' |',
+        ] | join(' ')
+      }}
+    fail_msg: |-
+      {{
+        [
+          '✗ Бит SGID НЕ установлен на ' + result_project_dir + ' |',
+          'Текущие права: ' + result_dir_info_stat.stat.mode + ' |',
+          'Владелец: ' + result_dir_info_stat.stat.pw_name + ' |',
+          'Группа: ' + result_dir_info_stat.stat.gr_name + ' |',
+        ] | join(' ')
+      }}
+
+- name: Generate a final report
+  ansible.builtin.debug:
+    msg: |-
+      {{
+        [
+          'Директория: ' + result_project_dir + ' |',
+          'SGID: ' + ('✓ ДА' if result_dir_info_stat.stat.isgid else '✗ НЕТ') + ' |',
+          'Права: ' + result_dir_info_stat.stat.mode + ' |',
+          'Владелец: ' + result_dir_info_stat.stat.pw_name + ' |',
+          'Группа: ' + result_dir_info_stat.stat.gr_name + ' |',
+        ] | join(' ')
+      }}

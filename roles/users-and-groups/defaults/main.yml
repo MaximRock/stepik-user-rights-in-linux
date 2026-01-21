@@ -13,24 +13,4 @@ password_policy:
   warn_days: 7
   inactive_days: 30
 
-# users:
-#   - username: alice
-#     group: devteam
-#     shell: /bin/bash
-#     create_home: true
-#     first_login_change: true
-#   - username: bob
-#     group: qateam
-#     shell: /bin/bash
-#     create_home: true
-#     first_login_change: true
-#   - username: alex
-#     group: devteam
-#     shell: /bin/bash
-#     create_home: true
-#     first_login_change: true
-#   - username: charlie
-#     group: ops
-#     shell: /bin/bash
-#     create_home: true
-#     first_login_change: true
+temp_password: 'Temp123'

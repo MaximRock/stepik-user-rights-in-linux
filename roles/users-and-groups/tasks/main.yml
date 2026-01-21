@@ -5,7 +5,7 @@
 - name: Create groups
   ansible.builtin.group:
     name: "{{ item }}"
-    state: "{{ state_present }}"
+    state: "{{ state.present }}"
   loop: "{{ user_groups }}"
   loop_control:
     label: "{{ item }}"
@@ -24,15 +24,16 @@
     groups: "{{ item.group }}"
     shell: "{{ item.shell }}"
     create_home: "{{ item.create_home }}"
-    password: "{{ 'Temp123' | password_hash('sha512') }}"
+    password: "{{ temp_password | password_hash('sha512') }}"
     password_expire_max: "{{ password_policy.max_days }}"
     password_expire_min: "{{ password_policy.min_days }}"
     password_expire_warn: "{{ password_policy.warn_days }}"
     password_expire_account_disable: "{{ password_policy.inactive_days }}"
-    state: "{{ state_present }}"
+    state: "{{ state.present }}"
   loop: "{{ users }}"
   loop_control:
     label: "{{ item.username }}"
+  when: item.first_login_change
 
 - name: Force password change on first login
   ansible.builtin.command:
