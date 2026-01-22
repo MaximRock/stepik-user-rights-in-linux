@@ -129,7 +129,7 @@ Dependencies
 
 Example Playbook
 ----------------
-
+```yml
 - name: Set ACL Sticky bit for directory shared
   ansible.posix.acl:
     path: "{{ log_app_directory.path }}"
@@ -137,3 +137,4 @@ Example Playbook
     etype: "{{ log_app_directory.etype }}"
     permissions: "{{ log_app_directory.permissions }}"
     state: "{{ state.present }}"
+```
