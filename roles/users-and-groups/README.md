@@ -4,7 +4,7 @@ Users-and-groups
 Выполнение пункта 2 задания.
 Создание пользователей и групп.
 
->### Важно
+> ## Важно
 > При перезапуске роли пользователи и группы создаются заново!
 
 Requirements
@@ -17,7 +17,7 @@ Role Variables
 
 Ниже перечислены доступные переменные и их значения по умолчанию (см. `defaults/main.yml`):
 
-```
+```yml
   user_groups:
     - devteam
     - qateam
@@ -25,13 +25,14 @@ Role Variables
 ```
 
 Список имен групп.
-```
+
+```yml
   state: "{{ state.present }}"
 ```
 
 Создание пользователей и групп (см. `group_vars/all.yml`).
 
-```
+```yml
   users:
     - username: alex
       group: devteam
@@ -64,7 +65,8 @@ Role Variables
 - `first_login_change:` если `true` устанавливаем пользователя
 
 Политика истечения паролей.
-```
+
+```yml
   password_policy:
     max_days: 90
     min_days: 1
@@ -79,7 +81,7 @@ Role Variables
 - `warn_days:` за сколько дней предупреждать об истечении пароля
 - `inactive_days:` сколько дней после истечения пароля отключать аккаунт
 
-```
+```yml
   temp_password: 'Temp123'
 ```
 
@@ -93,7 +95,7 @@ Dependencies
 Example Playbook
 ----------------
 
-```
+```yml
   - name: Create groups
     ansible.builtin.group:
       name: "{{ item }}"

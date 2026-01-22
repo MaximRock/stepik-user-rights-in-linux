@@ -58,7 +58,7 @@ shared_directory:
   group: root
   mode: '1777'
 
-# /srv/logs/app1/
+# /srv/log/app1/
 log_app_directory:
   path: "{{ log_directory.path }}app1/"
   directory: directory

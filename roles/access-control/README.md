@@ -1,38 +1,139 @@
-Role Name
+Access-control
 =========
 
-A brief description of the role goes here.
+3.Групповые и индивидуальные права
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+Нет
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+Ниже перечислены доступные переменные и их значения по умолчанию (см. `defaults/main.yml`):
+Переменные для создания директории `/srv/project`:
+
+```yml
+  # /srv/project/
+  dir_defaults:
+    state: directory
+    owner: root
+    group: devteam
+    file_mode: '0644'
+    default_dir_mode: '0775'
+```
+
+Список параметров:
+
+- `state`: `directory` - создать директорию
+- `owner`: владелец
+- `group`: группа
+- `file_mode`: права для файла
+- `default_dir_mode`: права для директории
+
+Директория проекта `/srv/roject`:
+
+```yml
+project_dir: /srv/project/
+```
+
+Права доступа в зависимости от файла:
+
+```yml
+  directories:
+    - path: "{{ project_dir }}"
+      mode: '2775'
+    - path: "{{ project_dir }}config/"
+      mode: '777'
+```
+
+Если `true` создаем тестовые файлы.
+
+```yml
+create_test_files: true
+```
+
+Тестовые файлы:
+
+```yml
+create_test_files: true
+test_files:
+  - path: README.md
+    content: |
+      # Project Directory
+      This directory is for development code.
+      Group 'devteam' has read/write access.
+      Other teams have read-only or no access.
+  - path: main.py
+    content: |
+      #!/usr/bin/env python3
+      print("Hello from project directory!")
+  - path: config/config.json
+    content: |
+      {
+        "project": "development",
+        "version": "1.0.0"
+      }
+```
+
+Переменные для директории `/srv/log/`:
+
+```yml
+  # /srv/log/
+  log_directory:
+    path: /srv/log/
+    state: directory
+    owner: root
+    group: ops
+    mode: '2770'
+```
+
+Групповые права для `/srv/log/`:
+
+```yml
+  user_groups:
+    qateam: r-x
+    devteam: r-x
+    ops: rwx
+```
+
+Переменные для директории `/tmp/sharedtest`:
+
+```yml
+# /tmp/sharedtest/
+shared_directory:
+  path: /tmp/sharedtest
+  state: directory
+  owner: root
+  group: root
+  mode: '1777'
+```
+
+Переменные для директории `/srv/log/app1` для установки `sticky bit`:
+
+```yml
+# /srv/log/app1/
+log_app_directory:
+  path: "{{ log_directory.path }}app1/"
+  directory: directory
+  username: alex
+  permissions: rwx
+  etype: user
+```
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+Нет
 
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
-
-License
--------
-
-BSD
-
-Author Information
-------------------
-
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+- name: Set ACL Sticky bit for directory shared
+  ansible.posix.acl:
+    path: "{{ log_app_directory.path }}"
+    entity: "{{ log_app_directory.username }}"
+    etype: "{{ log_app_directory.etype }}"
+    permissions: "{{ log_app_directory.permissions }}"
+    state: "{{ state.present }}"
