@@ -1,38 +1,63 @@
-Role Name
-=========
+User-roles-config
+========
 
-A brief description of the role goes here.
+6.root и sudo
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+Нет
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+Ниже перечислены доступные переменные и их значения по умолчанию (см. `defaults/main.yml`):
+
+Права доступа.
+
+```yml
+  file_permissions:
+    root: root
+    mode: '0440'
+```
+
+Путь к файлу `sshd_config` и `sudoers.d.
+
+```yml
+  path_sshd_config: /etc/ssh/sshd_config
+  path_sudoersd: /etc/sudoers.d/
+```
+
+Список настроек конфигурации `sudoers.d`.
+
+```yml
+  file:
+    - name: 10-charlie
+      content: |
+        charlie ALL=(ALL) NOPASSWD: /bin/systemctl restart nginx, /bin/systemctl restart apache2, /bin/systemctl restart mysql
+    - name: 20-bob
+      content: |
+        bob ALL=(ALL) NOPASSWD: /bin/cat /var/log/auth.log, /bin/less /var/log/auth.log, /bin/tail /var/log/auth.log
+    - name: 30-alice
+      content: |
+        alice ALL=(ALL) ALL
+    - name: 40-alex
+      content: |
+        alex ALL=(ALL) NOPASSWD: /usr/bin/vim /etc/nginx/nginx.conf, /usr/bin/nano /etc/nginx/nginx.conf
+```
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+Нет
 
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
-
-License
--------
-
-BSD
-
-Author Information
-------------------
-
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+```yml
+  - name: Disable direct SSH login for root
+    ansible.builtin.lineinfile:
+      path: "{{ path_sshd_config }}"
+      line: 'PermitRootLogin no'
+    notify: Restart sshd
+```

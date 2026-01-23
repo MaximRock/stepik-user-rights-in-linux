@@ -13,7 +13,7 @@
     path: "{{ base_path }}"
     state: "{{ state.directory }}"
     owner: "{{ web_user.www_data | default('www-data') }}"
-    group: "{{ web_groupwww_data | default('www-data') }}"
+    group: "{{ web_group.www_data | default('www-data') }}"
     mode: "{{ mode.directory | default('2775') }}"
 
 - name: Create website subdirectories

@@ -2,9 +2,9 @@
 ---
 # defaults file for user-roles-config
 
-state:
-  touch: touch
-  restarted: restarted
+# state:
+#   touch: touch
+#   restarted: restarted
 
 file_permissions:
   root: root

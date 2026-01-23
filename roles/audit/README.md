@@ -1,38 +1,93 @@
-Role Name
-=========
+Audit
+========
 
-A brief description of the role goes here.
+9.Логи и аудит
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+Нет
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+Ниже перечислены доступные переменные и их значения по умолчанию (см. `defaults/main.yml`):
+
+Путь к директории `audit`.
+
+```yml
+  audit_base_path: /etc/audit/rules.d
+```
+
+Права доступа.
+
+```yml
+  audit_file_permissions:
+    root: root
+    mode: '0644'
+```
+
+Данные для конфигурационных файлов `rules.d`.
+
+```yml
+  audit_config:
+    - name: 10-identity.rules
+      content: |
+        ## Мониторинг файлов паролей и групп ##
+        -w /etc/passwd -p wa -k passwd_identity
+        -w /etc/shadow -p wa -k shadow_identity
+        -w /etc/gshadow -p wa -k gshadow_identity
+        -w /etc/group -p wa -k group_identity
+        -w /etc/security/opasswd -p wa -k opasswd_identity
+    - name: 20-user-mod.rules
+      content: |
+        ## Мониторинг команд управления пользователями ##
+        -w /usr/sbin/useradd -p rwx -k useradd_mod
+        -w /usr/sbin/userdel -p x -k userdel_mod
+        -w /usr/sbin/usermod -p x -k usermod_mod
+        -w /usr/bin/passwd -p x -k passwd_mod
+        -w /usr/sbin/groupadd -p x -k groupadd_mod
+        -w /usr/sbin/groupdel -p x -k groupdel_mod
+        -w /usr/sbin/groupmod -p x -k groupmod_mod
+    - name: 30-changes-dir.rules
+      content: |
+        ## Мониторинг изменений в каталогах ##
+        -w /etc/skel/ -p wa -k user_mod
+        -w /etc/login.defs -p wa -k login_config
+        -w /etc/default/useradd -p wa -k user_config
+        -w /srv/logs/ -p wa -k logs_srv
+    - name: 40-ssh.rules
+      content: |
+        ## Мониторинг SSH ключей ##
+        -w /etc/ssh/sshd_config -p wa -k ssh_config
+        -w /root/.ssh/ -p wa -k ssh_keys
+        -w /home/vagrant/.ssh/ -p wa -k ssh_keys
+    - name: 50-system-bin.rules
+      content: |
+        ## Системные бинарники ##
+        -w /bin/su -p x -k privileged
+        -w /usr/bin/sudo -p x -k privileged
+        -w /etc/sudoers -p wa -k privileged
+        -w /etc/sudoers.d/ -p wa -k privileged
+```
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+Нет
 
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
-
-License
--------
-
-BSD
-
-Author Information
-------------------
-
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+```yml
+  - name: Create file audit rules
+    ansible.builtin.file:
+      path: "{{ audit_base_path }}/{{ item.name }}"
+      state: "{{ state.touch }}"
+      owner: "{{ audit_file_permissions.root }}"
+      group: "{{ audit_file_permissions.root }}"
+      mode: "{{ audit_file_permissions.mode }}"
+    loop: "{{ audit_config }}"
+    loop_control:
+      label: "{{ item.name }}"
+```

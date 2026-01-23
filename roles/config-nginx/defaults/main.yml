@@ -5,19 +5,13 @@
 package_name: nginx
 
 base_path: /srv/www/
-# state:
-#   directory: directory
-#   file: file
-#   touch: touch
-#   link: link
-#   restarted: restarted
 
 web_user:
   www_data: www-data
   root: root
 
 web_group:
-  www-www_data: www-data
+  www_data: www-data
   root: root
 
 mode:

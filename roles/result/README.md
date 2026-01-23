@@ -1,38 +1,63 @@
-Role Name
-=========
+Result
+========
 
-A brief description of the role goes here.
+Роль для подведения итогов по практическому заданию, состоит из нескольких подролей (см. `tasks/main.yml`).
+
+- check-sum.yml - проверка задания 2.3 копирования файлов из `/etc/skel`;
+  (проверка осуществляется сравнением `checksums` файлов у пользователя, у пользователя `alex` удалена строка поэтому проверка не пройдена).
+- dir-info.yml - проверка задания 3.3 `SGID /srv/pject/`
+- acl-mask.yml - проверка задания 4.3 `маска (mask) не обрезает нужные биты`.
+- audit-check.yml - проверка задания 9.3 работа `audit`.
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+Нет
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+Ниже перечислены доступные переменные и их значения по умолчанию (см. `defaults/main.yml`):
+
+Данные для файлов в директории `/etc/skel`.
+
+```yml
+  result_skel_files:
+    - .bashrc
+    - .bash_logout
+    - .profile
+```
+
+Пути к файлам.
+
+```yml
+  result_project_dir: /srv/project/
+
+  result_log_app_dir: /srv/log/app1/
+```
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+Нет
 
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+```yml
+  - name: Checksum directory /etc/skel
+    ansible.builtin.include_tasks: check-sum.yml
+    tags: check-sum
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+  - name: Info directory /srv/project
+    ansible.builtin.include_tasks: dir-info.yml
+    tags: dir-info
 
-License
--------
+  - name: Info ACL mask directory /srv/logs/app1/
+    ansible.builtin.include_tasks: acl-mask.yml
+    tags: acl-mask
 
-BSD
-
-Author Information
-------------------
-
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+  - name: Info auditreport
+    ansible.builtin.include_tasks: audit-check.yml
+    tags: audit-check
+```
