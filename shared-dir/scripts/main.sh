@@ -27,7 +27,18 @@ for script in "${SCRIPTS[@]}"; do
     if [[ ! -f "$script" ]]; then
         echo "Ошибка: файл $script не найден"
         exit 1
+    else
+        chmod +x "$script"
+        echo "Файл $script сделан исполняемым"
     fi
+
+    if [[ ! -x "$script" ]]; then
+        chmod +x "$script"
+        echo "Файл $script сделан исполняемым"
+    else
+        echo "Файл $script уже исполняемый"
+    fi
+
 done
 
 echo "▶ Шаг 1: Подготовка системы" script 10-prepare-server.sh
