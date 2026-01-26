@@ -100,22 +100,22 @@ Root не используется напрямую, только через sud
 - Клонируем репозиторий:
 
 ```bash
-    https://github.com/MaximRock/stepik-user-rights-in-linux.git
-    cd stepik-user-rights-in-linux
+git clone https://github.com/MaximRock/stepik-user-rights-in-linux.git
+cd stepik-user-rights-in-linux
 ```
 
 - Установливаем [uv](https://docs.astral.sh/uv/getting-started/installation/ "Скачать пакет uv"):
 
 ```bash
-    sudo pacman -S uv # archlinux
-    sudo snap install astral-uv --classic # Ubuntu с использованием Snap
+sudo pacman -S uv # archlinux
+sudo snap install astral-uv --classic # Ubuntu с использованием Snap
 ```
 
 Устанавливаем пакеты и активеруем виртуальное окружение:
 
 ```bash
-    uv sync
-    source .venv/bin/activate
+uv sync
+source .venv/bin/activate
 ```
 
 ## Быстрый старт

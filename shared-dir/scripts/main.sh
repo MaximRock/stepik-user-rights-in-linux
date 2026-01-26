@@ -27,10 +27,6 @@ for script in "${SCRIPTS[@]}"; do
     if [[ ! -f "$script" ]]; then
         echo "Ошибка: файл $script не найден"
         exit 1
-    else
-        chmod +x "$script"
-        echo "Файл $script сделан исполняемым"
-    fi
 
     if [[ ! -x "$script" ]]; then
         chmod +x "$script"
